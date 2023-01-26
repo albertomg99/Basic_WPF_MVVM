@@ -28,7 +28,8 @@ namespace Basic_WPF_MVVM
             InitializeComponent();
             _viewModel = new MyViewModel();
             DataContext = _viewModel;
-            DataGridUsers.ItemsSource = _viewModel.LoadUsers();
+            _viewModel.LoadUsersVM();
+            //DataGridUsers.ItemsSource = _viewModel.LoadUsers();
 
             //https://stackoverflow.com/questions/62257522/datagrid-data-binding-and-mvvm-in-wpf 
         }

@@ -1,6 +1,7 @@
 ﻿using Basic_WPF_MVVM.Model;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -16,9 +17,25 @@ namespace Basic_WPF_MVVM.ViewModel
         private string connectionString;
         private SqlConnection connection;
         private User user;
+        private ObservableCollection<UserFullName> _usersFN = new ObservableCollection<UserFullName>();
+        public ObservableCollection<UserFullName> UsersFN
+        {
+            get { return _usersFN; }
+            set
+            {
+                _usersFN = value;
+                OnPropertyChange("UsersFN");
+            }
+        }
 
         public MyViewModel()
         {
+            connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Administrador\\source\\repos\\Basic_WPF_MVVM\\Basic_WPF_MVVM\\DB.mdf;Integrated Security=True";
+            this.connectDB();
+
+            //usersFN = new ObservableCollection<UserFullName>();
+            //this.LoadUsersVM();
+
             this.user = new User
             {
                 FirstName = "John",
@@ -26,8 +43,6 @@ namespace Basic_WPF_MVVM.ViewModel
                 BirthDate = DateTime.Now.AddYears(-30),
             };
             CmdBoton = new RelayCommand(new Action<object>(CmdBotonAction));
-            connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Administrador\\source\\repos\\Basic_WPF_MVVM\\Basic_WPF_MVVM\\DB.mdf;Integrated Security=True";
-            this.connectDB();
         }
 
         public string FirstName
@@ -151,6 +166,24 @@ namespace Basic_WPF_MVVM.ViewModel
                 }
             }
             return users;
+        }
+
+
+        public void LoadUsersVM()
+        {
+            _usersFN.Clear();
+            string sql = "SELECT [FirstName] + ' ' + [LastName] AS FullName FROM [dbo].[User]";
+            SqlCommand command = new SqlCommand(sql, connection);
+
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                foreach (DbDataRecord record in reader)
+                {
+                    UserFullName userFN = new UserFullName();
+                    userFN.FullName = record.GetString(0);
+                    _usersFN.Add(userFN);
+                }
+            }
         }
 
 
